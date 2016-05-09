@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="analog_hand_stroke">3dp</dimen>
+    <dimen name="time_size">46dp</dimen>
+    <dimen name="date_size">20dp</dimen>
+</resources>
