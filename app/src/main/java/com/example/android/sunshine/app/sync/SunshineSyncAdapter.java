@@ -424,10 +424,10 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements
             Log.d(LOG_TAG, "high is " + high);
             Log.d(LOG_TAG, "low is " + low);
 
-            int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
-            Resources resources = context.getResources();
-            int artResourceId = Utility.getArtResourceForWeatherCondition(weatherId);
-            String artUrl = Utility.getArtUrlForWeatherCondition(context, weatherId);
+//            int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
+//            Resources resources = context.getResources();
+//            int artResourceId = Utility.getArtResourceForWeatherCondition(weatherId);
+//            String artUrl = Utility.getArtUrlForWeatherCondition(context, weatherId);
 
 //            Bitmap largeIcon;
 //            try {

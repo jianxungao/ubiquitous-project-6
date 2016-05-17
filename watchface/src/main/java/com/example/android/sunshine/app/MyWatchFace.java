@@ -157,14 +157,6 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 .build();
 
 
-//        final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                mCalendar.setTimeZone(TimeZone.getDefault());
-//                initFormats();
-//                invalidate();
-//            }
-//        };
 
         private final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
@@ -195,9 +187,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onCreate(SurfaceHolder holder) {
-            //if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onCreate");
-            //}
+            }
             super.onCreate(holder);
 
             setWatchFaceStyle(new WatchFaceStyle.Builder(MyWatchFace.this)

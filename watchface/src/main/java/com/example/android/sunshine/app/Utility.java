@@ -1,11 +1,9 @@
 package com.example.android.sunshine.app;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
-import java.util.Locale;
-
+/**
+ * this class original idea from Ashesh Bharadwaj
+ */
 
 public class Utility {
 
