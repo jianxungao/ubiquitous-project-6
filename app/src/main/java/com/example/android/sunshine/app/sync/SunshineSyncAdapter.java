@@ -424,28 +424,6 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements
             Log.d(LOG_TAG, "high is " + high);
             Log.d(LOG_TAG, "low is " + low);
 
-//            int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
-//            Resources resources = context.getResources();
-//            int artResourceId = Utility.getArtResourceForWeatherCondition(weatherId);
-//            String artUrl = Utility.getArtUrlForWeatherCondition(context, weatherId);
-
-//            Bitmap largeIcon;
-//            try {
-//                largeIcon = Glide.with(context)
-//                        .load(artUrl)
-//                        .asBitmap()
-//                        .error(artResourceId)
-//                        .fitCenter()
-//                        .into(48, 48).get();
-//            } catch (InterruptedException | ExecutionException e) {
-//                Log.e(LOG_TAG, "Error retrieving large icon from " + artUrl, e);
-//                largeIcon = BitmapFactory.decodeResource(resources, artResourceId);
-//            }
-
-//            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//            largeIcon.compress(Bitmap.CompressFormat.PNG, 100, baos);
-//            Asset asset = Asset.createFromBytes(baos.toByteArray());
-
             Log.d(LOG_TAG, "sending weather data");
             // Create a DataMap object and send it to the data layer
             DataMap dataMap = new DataMap();
@@ -456,9 +434,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements
             //dataMap.putAsset("icon", asset);
             //Requires a new thread to avoid blocking the UI
             new sendTempThread(WEARABLE_DATA_PATH, dataMap).start();
-
-
         }
+        cursor.close();
     }
 
 
@@ -486,8 +463,6 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements
                 Log.d(LOG_TAG, "ERROR: failed to send DataMap to data layer");
             }
         }
-
-
     }
 
     private void updateWidgets() {
