@@ -171,9 +171,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
             @Override
             public void handleMessage(Message message) {
 
-                //if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.v(TAG, "updating time");
-                //}
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "updating time");
+                }
                 invalidate();
                 if (shouldTimerBeRunning()) {
                     long timeMs = System.currentTimeMillis();
@@ -248,13 +248,6 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mDataPaint.setAntiAlias(true);
 
             mWeatherIconPaint = new Paint();
-//            mWeatherIconBitmap = BitmapFactory.decodeResource(getResources(),
-//                    getResources().getIdentifier("ic_clear","drawable", getPackageName()));
-
-//            float high = 20;
-//            float low = 12;
-//            mHighTemp = String.format("%3s", String.valueOf(high)) + "° C";
-//            mLowTemp = String.format("%3s", String.valueOf(low)) + "° C";
 
 
             /* Extract colors from background image to improve watchface style. */
@@ -289,9 +282,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
         @Override
         public void onPropertiesChanged(Bundle properties) {
             super.onPropertiesChanged(properties);
-            //if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onPropertiesChanged: low-bit ambient = " + mLowBitAmbient);
-            //}
+            }
 
             mLowBitAmbient = properties.getBoolean(PROPERTY_LOW_BIT_AMBIENT, false);
             mBurnInProtection = properties.getBoolean(PROPERTY_BURN_IN_PROTECTION, false);
@@ -306,9 +299,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
         @Override
         public void onAmbientModeChanged(boolean inAmbientMode) {
             super.onAmbientModeChanged(inAmbientMode);
-            //if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "onAmbientModeChanged: " + inAmbientMode);
-            //}
+            }
             mAmbient = inAmbientMode;
 
             updateWatchHandStyle();
@@ -433,9 +426,9 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
-            //if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
                 Log.v(TAG, "onDraw");
-            //}
+            }
             long now = System.currentTimeMillis();
             mCalendar.setTimeInMillis(now);
 
@@ -562,6 +555,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mGrayWeatherIconBitmap= BitmapFactory.decodeResource(getResources(), resIDBW);
             mHighTemp = String.format("%3s",String.valueOf(high)) + "° C";
             mLowTemp = String.format("%3s",String.valueOf(low)) + "° C";
+
 
         }
 
