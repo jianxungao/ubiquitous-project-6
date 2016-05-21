@@ -154,9 +154,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         private GoogleApiClient mGoogleApiClient;
         private static final String WEARABLE_DATA_PATH = "/wearable_data";
-        private boolean mWeatherDataUpdated;
         private boolean mWeatherRequest;
-        //private boolean mResolvingError;
+
 
 
 
@@ -217,7 +216,6 @@ public class MyWatchFace extends CanvasWatchFaceService {
             initWeatherDetails(0,0, "clear");
 
             /* Set defaults for colors */
-            //mWatchHandColor = Color.WHITE;
             mWatchHandColor = Color.BLUE;
             mWatchHandHighlightColor = Color.RED;
             mWatchHandShadowColor = Color.BLACK;
@@ -325,10 +323,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 mMinutePaint.setColor(Color.WHITE);
                 mSecondPaint.setColor(Color.WHITE);
                 mTickAndCirclePaint.setColor(Color.WHITE);
-//                mHourPaint.setColor(Color.BLACK);
-//                mMinutePaint.setColor(Color.BLACK);
-//                mSecondPaint.setColor(Color.BLACK);
-//                mTickAndCirclePaint.setColor(Color.BLACK);
+
 
                 mHourPaint.setAntiAlias(false);
                 mMinutePaint.setAntiAlias(false);
@@ -425,10 +420,6 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(mGrayBackgroundBitmap);
             Paint grayPaint = new Paint();
-//            ColorMatrix colorMatrix = new ColorMatrix();
-//            colorMatrix.setSaturation(0);
-//            ColorMatrixColorFilter filter = new ColorMatrixColorFilter(colorMatrix);
-//            grayPaint.setColorFilter(filter);
             grayPaint.setColorFilter( new ColorMatrixColorFilter((NEGATIVE)));
             canvas.drawBitmap(mBackgroundBitmap, 0, 0, grayPaint);
         }
