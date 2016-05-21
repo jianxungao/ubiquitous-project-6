@@ -33,6 +33,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
@@ -47,10 +48,13 @@ import android.support.v7.graphics.Palette;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
@@ -81,7 +85,7 @@ public class MyWatchFace extends CanvasWatchFaceService {
     };
     private static final Typeface NORMAL_TYPEFACE = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
     private static final Typeface BOLD_TYPEFACE = Typeface.DEFAULT_BOLD;
-    private static final int REQUEST_RESOLVE_ERROR = 1000;
+
 
 
     @Override
@@ -89,13 +93,10 @@ public class MyWatchFace extends CanvasWatchFaceService {
         return new Engine();
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine implements DataApi.DataListener,
+    private class Engine extends CanvasWatchFaceService.Engine implements
+            DataApi.DataListener,
             GoogleApiClient.ConnectionCallbacks,
-            OnConnectionFailedListener{
-
-        private static final String WEARABLE_DATA_PATH = "/wearable_data";
-        private boolean mWeatherDataUpdated = false;
-        private boolean mResolvingError = false;
+            GoogleApiClient.OnConnectionFailedListener{
 
         private static final int MSG_UPDATE_TIME = 0;
 
@@ -150,11 +151,12 @@ public class MyWatchFace extends CanvasWatchFaceService {
         private String mHighTemp;
         private String mLowTemp;
 
-        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(MyWatchFace.this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(Wearable.API)
-                .build();
+
+        private GoogleApiClient mGoogleApiClient;
+        private static final String WEARABLE_DATA_PATH = "/wearable_data";
+        private boolean mWeatherDataUpdated;
+        private boolean mWeatherRequest;
+        //private boolean mResolvingError;
 
 
 
@@ -191,6 +193,13 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 Log.d(TAG, "onCreate");
             }
             super.onCreate(holder);
+
+            mWeatherRequest = false;
+            mGoogleApiClient = new GoogleApiClient.Builder(MyWatchFace.this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(Wearable.API)
+                    .build();
 
             setWatchFaceStyle(new WatchFaceStyle.Builder(MyWatchFace.this)
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
@@ -556,7 +565,6 @@ public class MyWatchFace extends CanvasWatchFaceService {
             mHighTemp = String.format("%3s",String.valueOf(high)) + "° C";
             mLowTemp = String.format("%3s",String.valueOf(low)) + "° C";
 
-
         }
 
         /**
@@ -577,14 +585,14 @@ public class MyWatchFace extends CanvasWatchFaceService {
             super.onVisibilityChanged(visible);
             Log.d(TAG, "on Visibilty Changed!");
             if (visible) {
-                if (!mWeatherDataUpdated && !mResolvingError) {
-                    mGoogleApiClient.connect();
-                    Log.d(TAG, "connect() called! GoogleApiClient connected is " + mGoogleApiClient.isConnected());
-                }
+
+                mGoogleApiClient.connect();
+                Log.d(TAG, "connect() called! GoogleApiClient connected is " + mGoogleApiClient.isConnected());
+
                 registerReceiver();
                 /* Update time zone in case it changed while we weren't visible. */
                 mCalendar.setTimeZone(TimeZone.getDefault());
-                invalidate();
+
             } else {
                 unregisterReceiver();
                 if(mGoogleApiClient != null && mGoogleApiClient.isConnected()){
@@ -646,32 +654,27 @@ public class MyWatchFace extends CanvasWatchFaceService {
         public void onDataChanged(DataEventBuffer dataEvents) {
             Log.d(TAG, "onDataChanged " + dataEvents);
 
-            for (DataEvent dataEvent : dataEvents) {
+            for (DataEvent event : dataEvents) {
 
-                if (dataEvent.getType() == DataEvent.TYPE_CHANGED){
+                if (event.getType() == DataEvent.TYPE_CHANGED){
                     Log.d(TAG, "data changed! " + DataEvent.TYPE_CHANGED);
-                    DataItem dataItem = dataEvent.getDataItem();
+                    DataItem item = event.getDataItem();
 
-                    if (dataItem.getUri().getPath().equals(WEARABLE_DATA_PATH)){
+                    if (item.getUri().getPath().equals(WEARABLE_DATA_PATH)){
+                        DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
 
-                        DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
-                        DataMap dMap = dataMapItem.getDataMap();
-                        int high = (int) Math.round(dMap.getDouble("high"));
+                        int high = (int) Math.round(dataMap.getDouble("high"));
                         Log.d(TAG, "high is " + high);
-                        int low = (int) Math.round(dMap.getDouble("low"));
+                        int low = (int) Math.round(dataMap.getDouble("low"));
                         Log.d(TAG, "low is " + low);
-                        Long id = dMap.getLong("id");
+                        Long id = dataMap.getLong("id");
                         Log.d(TAG, "id is " + id);
                         String icon = Utility.getArtUrlForWeatherCondition(id);
                         initWeatherDetails(high, low, icon);
-                        mWeatherDataUpdated = true;
-                        invalidate();
+
+                        mWeatherRequest = true;
                     }
                 }
-            }
-
-            if (mWeatherDataUpdated){
-                invalidate();
             }
         }
 
@@ -691,30 +694,52 @@ public class MyWatchFace extends CanvasWatchFaceService {
             }
             Wearable.DataApi.addListener(mGoogleApiClient, Engine.this);
 
+            mWeatherRequest = false;
+
+            getWeatherData();
+
+
+        }
+
+        private void  getWeatherData(){
+            Log.d(TAG, "getWeaherData");
+
+            if ((mGoogleApiClient != null)
+                    && (mGoogleApiClient.isConnected())
+                    && (!mWeatherRequest)){
+
+                mWeatherRequest = true;
+
+                Log.d(TAG, "get data here!");
+                PendingResult<DataItemBuffer> results =
+                        Wearable.DataApi.getDataItems(mGoogleApiClient);
+
+                results.setResultCallback(new ResultCallback<DataItemBuffer>() {
+                    @Override
+                    public void onResult(@NonNull DataItemBuffer dataItems) {
+                        if (dataItems.getCount() != 0){
+                            DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItems.get(0));
+
+                            DataMap dataMap = dataMapItem.getDataMap();
+                            int high = (int) Math.round(dataMap.getDouble("high"));
+                            Log.d(TAG, "high is " + high);
+                            int low = (int) Math.round(dataMap.getDouble("low"));
+                            Log.d(TAG, "low is " + low);
+                            Long id = dataMap.getLong("id");
+                            Log.d(TAG, "id is " + id);
+                            String icon = Utility.getArtUrlForWeatherCondition(id);
+                            initWeatherDetails(high, low, icon);
+                        }
+                    }
+                });
+
+            }
+
         }
 
         @Override  // GoogleApiClient.OnConnectionFailedListener
         public void onConnectionFailed(ConnectionResult result) {
-            if (mResolvingError) {
-                // Already attempting to resolve an error.
-                return;
-            } else if (result.hasResolution()) {
-                try {
-                    mResolvingError = true;
-
-                } catch (Exception e) {
-                    // There was an error with the resolution intent. Try again.
-                    mGoogleApiClient.connect();
-                }
-            } else {
-                Log.e(TAG, "Connection to Google API client has failed");
-                mResolvingError = false;
-
-                Wearable.DataApi.removeListener(mGoogleApiClient, this);
-
-            }
-
-
+           Log.d(TAG,"mGoogleApiClient.OnConnectionFailed: " + result);
         }
     }
 }
